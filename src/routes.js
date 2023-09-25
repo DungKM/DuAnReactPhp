@@ -17,7 +17,6 @@
 */
 import Dashboard from "views/Dashboard.js";
 import UserProfile from "views/UserProfile.js";
-import TableList from "views/TableList.js";
 import Icons from "views/Icons.js";
 import Categories from "views/Categories/Categories";
 import CreateCategory from "views/Categories/CreateCategory";
@@ -28,6 +27,12 @@ import EditBrand from "views/Brands/EditBrand";
 import Products from "views/Products/Products";
 import CreateProduct from "views/Products/CreateProduct";
 import EditProduct from "views/Products/EditProduct";
+import Roles from "views/Roles/Roles";
+import CreateRole from "views/Roles/CreateRole";
+import EditRole from "views/Roles/EditRole";
+import Users from "views/Users/Users";
+import CreateUser from "views/Users/CreateUser";
+import EditUser from "views/Users/EditUser";
 
 const dashboardRoutes = [
   {
@@ -35,13 +40,6 @@ const dashboardRoutes = [
     name: "Dashboard",
     icon: "nc-icon nc-chart-pie-35",
     component: Dashboard,
-    layout: "/admin",
-  },
-  {
-    path: "/user",
-    name: "User Profile",
-    icon: "nc-icon nc-circle-09",
-    component: UserProfile,
     layout: "/admin",
   },
   {
@@ -60,14 +58,14 @@ const dashboardRoutes = [
   },
   {
     path: "/category/create",
-    name: "CreateCategories",
+    name: "CreateCategorie",
     component: CreateCategory,
     layout: "/admin",
     redirect: true,
   },
   {
     path: "/category/edit/:id",
-    name: "EditCategories",
+    name: "EditCategorie",
     component: EditCategory,
     layout: "/admin",
     redirect: true,
@@ -81,14 +79,14 @@ const dashboardRoutes = [
   },
   {
     path: "/brand/create",
-    name: "CreateBrands",
+    name: "CreateBrand",
     component: CreateBrand,
     layout: "/admin",
     redirect: true,
   },
   {
     path: "/brand/edit/:id",
-    name: "EditBrands",
+    name: "EditBrand",
     component: EditBrand,
     layout: "/admin",
     redirect: true,
@@ -102,15 +100,57 @@ const dashboardRoutes = [
   },
   {
     path: "/product/create",
-    name: "CreateProducts",
+    name: "CreateProduct",
     component: CreateProduct,
     layout: "/admin",
     redirect: true,
   },
   {
     path: "/product/edit/:id",
-    name: "EditProducts",
+    name: "EditProduct",
     component: EditProduct,
+    layout: "/admin",
+    redirect: true,
+  },
+  {
+    path: "/roles",
+    name: "Roles",
+    icon: "nc-icon nc-key-25",
+    component: Roles,
+    layout: "/admin",
+  },
+  {
+    path: "/role/create",
+    name: "CreateRole",
+    component: CreateRole,
+    layout: "/admin",
+    redirect: true,
+  },
+  {
+    path: "/role/edit/:id",
+    name: "EditRole",
+    component: EditRole,
+    layout: "/admin",
+    redirect: true,
+  },
+  {
+    path: "/users",
+    name: "Users",
+    icon: "nc-icon nc-circle-09",
+    component: Users,
+    layout: "/admin",
+  },
+  {
+    path: "/user/create",
+    name: "CreateUser",
+    component: CreateUser,
+    layout: "/admin",
+    redirect: true,
+  },
+  {
+    path: "/user/edit/:id",
+    name: "EditUser",
+    component: EditUser,
     layout: "/admin",
     redirect: true,
   },

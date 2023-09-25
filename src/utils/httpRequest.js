@@ -17,4 +17,8 @@ export const destroy = async (path, options = {}) => {
 export const update = async (path, options = {}) => {
   return  await httpRequest.post(path, options);
 };
+export const updateForm = async (path, options = {}) => {
+  return  await httpRequest.put(path, options);
+};
+
 export default httpRequest;
