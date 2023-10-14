@@ -4,7 +4,7 @@ import { Button, Card, Form, Container, Row, Col } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import { postUser } from "service/userService";
 import { getRolesUser } from "service/userService";
-
+import { schemaCreateUser } from "yup/validation/SchemaValidation";
 
 function CreateUser() {
   const history = useHistory();
@@ -15,8 +15,10 @@ function CreateUser() {
     password: "",
     role_ids: [],
   });
+
   const [choose, setChoose] = useState({});
-  const { name, email,password, role_ids } = formData;
+
+  const { name, email, password, role_ids } = formData;
 
   const handleInputChange = (event) => {
     const { name, value, type, files, checked } = event.target;
@@ -26,7 +28,6 @@ function CreateUser() {
       const updatedRoleIds = formData.role_ids.includes(value)
         ? formData.role_ids.filter((id) => id !== value)
         : [...formData.role_ids, value];
-
       setFormData((prevData) => ({
         ...prevData,
         role_ids: updatedRoleIds,
@@ -76,19 +77,17 @@ function CreateUser() {
     event.preventDefault();
 
     try {
-      // await validationSchema.validate(formData, { abortEarly: false });
-
-     
+      await schemaCreateUser.validate(formData, { abortEarly: false });
       await postUser(formData);
-
       history.push("/admin/users");
     } catch (error) {
-      // If validation fails, update the error messages
-      // const errors = {};
-      // error.inner.forEach((e) => {
-      //   errors[e.path] = e.message;
-      // });
-      // setErrorMessages(errors);
+      const validationErrors = {};
+      if (error.inner) {
+        error.inner.forEach((validationError) => {
+          validationErrors[validationError.path] = validationError.message;
+        });
+      }
+      setErrorMessages(validationErrors);
     }
   };
 
@@ -114,6 +113,11 @@ function CreateUser() {
                           value={name}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.name && (
+                          <div className="text-danger">
+                            {errorMessages.name}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -128,6 +132,11 @@ function CreateUser() {
                           value={email}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.email && (
+                          <div className="text-danger">
+                            {errorMessages.email}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -142,15 +151,20 @@ function CreateUser() {
                           value={password}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.password && (
+                          <div className="text-danger">
+                            {errorMessages.password}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
-                  
+
                   <Row>
                     <Col md="12">
                       <Form.Group
                         controlId="formBasicCheckbox"
-                        className="d-flex justify-content-between"
+                        className="d-block mx-3 my-4"
                       >
                         {<ListCheck object={choose} />}
                       </Form.Group>

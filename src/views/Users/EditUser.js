@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Button, Card, Form, Container, Row, Col } from "react-bootstrap";
 import { useHistory, useParams } from "react-router-dom";
-import { editUser, detailUser,  getRolesUser  } from "service/userService";
-
+import { editUser, detailUser, getRolesUser } from "service/userService";
+import { schemaUpdateUser } from "yup/validation/SchemaValidation";
 
 function EditUser() {
   const history = useHistory();
@@ -16,22 +16,17 @@ function EditUser() {
 
   const handleInputChange = (event) => {
     const { name, value, type, files, checked } = event.target;
-  
+
     if (type === "checkbox") {
-      // Chuyển đổi giá trị value thành kiểu số
       const numericValue = parseInt(value, 10);
-  
-      // Nếu là checkbox, thêm hoặc loại bỏ giá trị vào mảng role_ids
       const updatedRoleIds = formData.role_ids.includes(numericValue)
         ? formData.role_ids.filter((id) => id !== numericValue)
         : [...formData.role_ids, numericValue];
-  
       setFormData((prevData) => ({
         ...prevData,
         role_ids: updatedRoleIds,
       }));
     } else {
-      // Nếu là các trường dữ liệu khác, xử lý bình thường
       const newValue = type === "file" ? files[0] : value;
       setFormData((prevData) => ({
         ...prevData,
@@ -39,20 +34,20 @@ function EditUser() {
       }));
     }
   };
-  
+
   console.log(formData);
 
   useEffect(() => {
-    // Lấy thông tin role hiện tại từ máy chủ dựa vào roleId
     detailUser(id).then((response) => {
       setFormData({
         name: response.name,
-        role_ids: response.roles.map((item)=> item.id),
+        role_ids: response.roles.map((item) => item.id),
       });
       console.log(response);
     });
 
     getRolesUser().then((response) => {
+      console.log(response);
       setChoose(response);
     });
   }, [id]);
@@ -61,14 +56,17 @@ function EditUser() {
     event.preventDefault();
 
     try {
-      // Gửi dữ liệu chỉnh sửa lên máy chủ
+      await schemaUpdateUser.validate(formData, { abortEarly: false });
       await editUser(formData, id);
-
       history.push("/admin/users");
     } catch (error) {
-      // Xử lý lỗi nếu cần thiết
-      // console.error("Error updating role:", error);
-      // setErrorMessages(error.response.data.errors); // Cập nhật thông báo lỗi từ máy chủ
+      const validationErrors = {};
+      if (error.inner) {
+        error.inner.forEach((validationError) => {
+          validationErrors[validationError.path] = validationError.message;
+        });
+      }
+      setErrorMessages(validationErrors);
     }
   };
 
@@ -95,17 +93,18 @@ function EditUser() {
                           value={formData.name}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.name && (
+                          <div className="text-danger">
+                            {errorMessages.name}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
-                  
-                 
-                    
-               
+
                   <Row>
                     <Col md="12">
                       <Form.Group controlId="formBasicCheckbox">
-                        {/* Checkbox cho roles */}
                         {Object.keys(choose).map((key) => (
                           <div key={key}>
                             <h3>{key}</h3>
@@ -119,9 +118,10 @@ function EditUser() {
                                   id={item.id.toString()}
                                   checked={
                                     formData.role_ids &&
-                                    formData.role_ids.map((id) => id).includes(item.id)
+                                    formData.role_ids
+                                      .map((id) => id)
+                                      .includes(item.id)
                                   }
-                                  
                                   onChange={handleInputChange}
                                 />
                               </div>

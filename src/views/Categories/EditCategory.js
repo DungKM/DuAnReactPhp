@@ -1,9 +1,9 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Form, Container, Row, Col } from "react-bootstrap";
 import { useParams, useHistory } from "react-router-dom";
-import { postCategory } from "service/categoryService";
 import { detailCategory, editCategory } from "service/categoryService";
+import { imageValidationSchema } from "yup/validation/SchemaValidation";
+import { schemaUpdateBrandAndCategory } from "yup/validation/SchemaValidation";
 
 function EditCategory() {
   const { id } = useParams();
@@ -21,7 +21,6 @@ function EditCategory() {
     const value = event.target.value;
     setInputs((values) => ({ ...values, [name]: value }));
   };
-
   useEffect(() => {
     detailCategory(id)
       .then((response) => {
@@ -38,10 +37,7 @@ function EditCategory() {
     formData.append("name", inputs.name);
     formData.append("description", inputs.description);
     formData.append("image", fileimage);
-
-    await axios.post("http://127.0.0.1:8000/api/categories/" + id, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    await editCategory(formData, id);
     setTimeout(() => {
       history.push("/admin/categories");
     }, 2000);
@@ -49,7 +45,32 @@ function EditCategory() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await uploadProduct();
+
+    // Kiểm tra trường image nếu fileimage không rỗng
+    if (fileimage) {
+      try {
+        await imageValidationSchema.validate(fileimage, { abortEarly: false });
+      } catch (error) {
+        setErrorMessages({ image: error.message });
+        return; // Dừng việc submit nếu có lỗi ở trường image
+      }
+    }
+
+    try {
+      await schemaUpdateBrandAndCategory.validate(inputs, {
+        abortEarly: false,
+      });
+      await uploadProduct();
+    } catch (error) {
+      const validationErrors = {};
+
+      if (error.inner) {
+        error.inner.forEach((validationError) => {
+          validationErrors[validationError.path] = validationError.message;
+        });
+      }
+      setErrorMessages(validationErrors);
+    }
   };
 
   return (
@@ -103,14 +124,20 @@ function EditCategory() {
                     <Form.Group>
                       <label>Image</label>
                       <div>
-                        <img
-                          src={
-                            "http://127.0.0.1:8000/storage/images/" +
-                            inputs.image
-                          }
-                          style={{ width: "100px" }}
-                          alt="Category Image"
-                        />
+                        {inputs.image ? (
+                          <img
+                            src={
+                              inputs.image
+                                ? "http://127.0.0.1:8000/storage/images/" +
+                                  inputs.image
+                                : ""
+                            }
+                            style={{ width: "100px" }}
+                            alt="Category Image"
+                          />
+                        ) : (
+                          <></>
+                        )}
                       </div>
                       <Form.Control
                         type="file"

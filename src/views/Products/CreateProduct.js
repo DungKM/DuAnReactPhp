@@ -4,6 +4,7 @@ import Form from "react-bootstrap/Form";
 import { useHistory } from "react-router-dom";
 import { postProduct } from "service/productService";
 import { getCategoriesBrands } from "service/productService";
+import { schemaCreateProduct } from "yup/validation/SchemaValidation";
 
 function CreateProduct() {
   const history = useHistory();
@@ -15,7 +16,7 @@ function CreateProduct() {
     quantity: "",
     quantity_page: "",
     sale: "",
-    image: "",
+    image: null,
     description: "",
     category_id: "",
     brand_id: "",
@@ -39,7 +40,7 @@ function CreateProduct() {
     });
   }, []);
   const { categories, brands } = choose;
-  
+
   const handleInputChange = (event) => {
     const { name, value, type, files } = event.target;
     const newValue = type === "file" ? files[0] : value;
@@ -55,6 +56,8 @@ function CreateProduct() {
 
     try {
       // If validation succeeds, proceed with form submission
+      await schemaCreateProduct.validate(formData, { abortEarly: false });
+
       const formDataType = new FormData();
       formDataType.append("name", name);
       formDataType.append("price", price);
@@ -70,7 +73,14 @@ function CreateProduct() {
 
       history.push("/admin/products");
     } catch (error) {
-      // If validation fails, update the error messages
+      const validationErrors = {};
+      if (error.inner) {
+        error.inner.forEach((validationError) => {
+          validationErrors[validationError.path] = validationError.message;
+        });
+      }
+
+      setErrorMessages(validationErrors);
     }
   };
 
@@ -96,6 +106,11 @@ function CreateProduct() {
                           value={name}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.name && (
+                          <div className="text-danger">
+                            {errorMessages.name}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -108,6 +123,11 @@ function CreateProduct() {
                           name="image"
                           onChange={handleInputChange}
                         />
+                       {errorMessages.image && (
+                          <div className="text-danger">
+                            {errorMessages.image}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -122,6 +142,11 @@ function CreateProduct() {
                           value={price}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.price && (
+                          <div className="text-danger">
+                            {errorMessages.price}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -136,6 +161,11 @@ function CreateProduct() {
                           value={quantity}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.quantity && (
+                          <div className="text-danger">
+                            {errorMessages.quantity}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -150,6 +180,11 @@ function CreateProduct() {
                           value={quantity_page}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.quantity_page && (
+                          <div className="text-danger">
+                            {errorMessages.quantity_page}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -164,6 +199,11 @@ function CreateProduct() {
                           value={sale}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.sale && (
+                          <div className="text-danger">
+                            {errorMessages.sale}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -178,6 +218,11 @@ function CreateProduct() {
                           value={description}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.description && (
+                          <div className="text-danger">
+                            {errorMessages.description}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -199,6 +244,11 @@ function CreateProduct() {
                             );
                           })}
                         </Form.Control>
+                        {errorMessages.category_id && (
+                          <div className="text-danger">
+                            {errorMessages.category_id}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -220,6 +270,11 @@ function CreateProduct() {
                             );
                           })}
                         </Form.Control>
+                        {errorMessages.brand_id && (
+                          <div className="text-danger">
+                            {errorMessages.brand_id}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>

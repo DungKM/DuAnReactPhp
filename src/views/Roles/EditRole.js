@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button, Card, Form, Container, Row, Col } from "react-bootstrap";
 import { useHistory, useParams } from "react-router-dom";
 import { detailRole, editRole, getPermission } from "service/roleService";
+import { schemaCreateRole } from "yup/validation/SchemaValidation";
 
 function EditRole() {
   const history = useHistory();
@@ -62,15 +63,19 @@ function EditRole() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    
     try {
-      // Gửi dữ liệu chỉnh sửa lên máy chủ
+      await schemaCreateRole.validate(formData, { abortEarly: false });
       await editRole(formData, id);
-
       history.push("/admin/roles");
     } catch (error) {
-      // Xử lý lỗi nếu cần thiết
-      // console.error("Error updating role:", error);
-      // setErrorMessages(error.response.data.errors); // Cập nhật thông báo lỗi từ máy chủ
+      const validationErrors = {};
+      if (error.inner) {
+        error.inner.forEach((validationError) => {
+          validationErrors[validationError.path] = validationError.message;
+        });
+      }
+      setErrorMessages(validationErrors);
     }
   };
 
@@ -97,6 +102,11 @@ function EditRole() {
                           value={formData.name}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.name && (
+                          <div className="text-danger">
+                            {errorMessages.name}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -111,6 +121,11 @@ function EditRole() {
                           value={formData.display_name}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.display_name && (
+                          <div className="text-danger">
+                            {errorMessages.display_name}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -128,12 +143,17 @@ function EditRole() {
                           <option value="system">System</option>
                           <option value="user">User</option>
                         </Form.Control>
+                        {errorMessages.group && (
+                          <div className="text-danger">
+                            {errorMessages.group}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
                   <Row>
                     <Col md="12">
-                      <Form.Group controlId="formBasicCheckbox">
+                      <Form.Group controlId="formBasicCheckbox" className="d-flex justify-content-between">
                         {/* Checkbox cho permissions */}
                         {Object.keys(choose).map((key) => (
                           <div key={key}>
@@ -157,6 +177,7 @@ function EditRole() {
                             ))}
                           </div>
                         ))}
+                        
                       </Form.Group>
                     </Col>
                   </Row>

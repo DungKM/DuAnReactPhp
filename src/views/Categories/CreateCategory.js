@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Card, Form, Container, Row, Col } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import { postCategory } from "service/categoryService";
+import { schemaCreateBrandAndCategory } from "yup/validation/SchemaValidation";
 
 function CreateCategory() {
   const history = useHistory();
@@ -26,9 +27,11 @@ function CreateCategory() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     try {
-      await validationSchema.validate(formData, { abortEarly: false });
+      await schemaCreateBrandAndCategory.validate(formData, {
+        abortEarly: false,
+      });
+
       const formDataType = new FormData();
       formDataType.append("name", name);
       formDataType.append("description", description);
@@ -36,7 +39,14 @@ function CreateCategory() {
       await postCategory(formDataType);
       history.push("/admin/categories");
     } catch (error) {
-    
+      const validationErrors = {};
+      if (error.inner) {
+        error.inner.forEach((validationError) => {
+          validationErrors[validationError.path] = validationError.message;
+        });
+      }
+
+      setErrorMessages(validationErrors);
     }
   };
 
@@ -50,7 +60,7 @@ function CreateCategory() {
                 <Card.Title as="h4">Create Category</Card.Title>
               </Card.Header>
               <Card.Body>
-                <Form id="form-add" onSubmit={handleSubmit}>
+                <Form onSubmit={handleSubmit}>
                   <Row>
                     <Col md="12">
                       <Form.Group>
@@ -106,7 +116,7 @@ function CreateCategory() {
                       </Form.Group>
                     </Col>
                   </Row>
-                  <Button className="btn-fill" type="submit" variant="info">
+                  <Button type="submit" variant="info">
                     Create Category
                   </Button>
                   <div className="clearfix"></div>

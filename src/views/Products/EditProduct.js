@@ -3,8 +3,11 @@ import React, { useEffect, useState } from "react";
 import { Button, Card, Container, Row, Col } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import { useParams, useHistory } from "react-router-dom";
+import { editProduct } from "service/productService";
 import { detailProduct } from "service/productService";
 import { getCategoriesBrands } from "service/productService";
+import { imageValidationSchema } from "yup/validation/SchemaValidation";
+import { schemaUpdateProduct } from "yup/validation/SchemaValidation";
 
 function EditProduct() {
   const { id } = useParams();
@@ -17,7 +20,7 @@ function EditProduct() {
     quantity: "",
     quantity_page: "",
     sale: "",
-    image: "",
+    image: null,
     description: "",
     category_id: "",
     brand_id: "",
@@ -64,17 +67,36 @@ function EditProduct() {
       formData.append("image", inputs.image);
     }
 
-    await axios.post("http://127.0.0.1:8000/api/products/" + id, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    setTimeout(() => {
-      history.push("/admin/products");
-    }, 2000);
+    await editProduct(formData, id);
+    history.push("/admin/products");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await uploadProduct();
+    if (fileimage) {
+      try {
+        await imageValidationSchema.validate(fileimage, { abortEarly: false });
+      } catch (error) {
+        setErrorMessages({ image: error.message });
+        return; // Dừng việc submit nếu có lỗi ở trường image
+      }
+    }
+
+    try {
+      await schemaUpdateProduct.validate(inputs, {
+        abortEarly: false,
+      });
+      await uploadProduct();
+    } catch (error) {
+      const validationErrors = {};
+
+      if (error.inner) {
+        error.inner.forEach((validationError) => {
+          validationErrors[validationError.path] = validationError.message;
+        });
+      }
+      setErrorMessages(validationErrors);
+    }
   };
 
   return (
@@ -99,6 +121,11 @@ function EditProduct() {
                           value={inputs.name}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.name && (
+                          <div className="text-danger">
+                            {errorMessages.name}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -107,22 +134,31 @@ function EditProduct() {
                       <Form.Group>
                         <label>Image</label>
                         <div>
-                          <img
-                            src={
-                              inputs.image
-                                ? "http://127.0.0.1:8000/storage/images/" +
-                                  inputs.image
-                                : "URL_mặc_định_nếu_image_undefined"
-                            }
-                            style={{ width: "100px" }}
-                            alt="Product Image"
-                          />
+                          {inputs.image ? (
+                            <img
+                              src={
+                                inputs.image
+                                  ? "http://127.0.0.1:8000/storage/images/" +
+                                    inputs.image
+                                  : ""
+                              }
+                              style={{ width: "100px" }}
+                              alt="Product Image"
+                            />
+                          ) : (
+                            <></>
+                          )}
                         </div>
                         <Form.Control
                           type="file"
                           name="image"
                           onChange={(e) => setPhoto(e.target.files[0])}
                         />
+                        {errorMessages.image && (
+                          <div className="text-danger">
+                            {errorMessages.image}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -137,6 +173,11 @@ function EditProduct() {
                           value={inputs.price}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.price && (
+                          <div className="text-danger">
+                            {errorMessages.price}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -151,6 +192,11 @@ function EditProduct() {
                           value={inputs.quantity}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.quantity && (
+                          <div className="text-danger">
+                            {errorMessages.quantity}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -165,6 +211,11 @@ function EditProduct() {
                           value={inputs.quantity_page}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.quantity_page && (
+                          <div className="text-danger">
+                            {errorMessages.quantity_page}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -179,6 +230,11 @@ function EditProduct() {
                           value={inputs.sale}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.sale && (
+                          <div className="text-danger">
+                            {errorMessages.sale}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -193,6 +249,11 @@ function EditProduct() {
                           value={inputs.description}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.description && (
+                          <div className="text-danger">
+                            {errorMessages.description}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -214,6 +275,11 @@ function EditProduct() {
                             );
                           })}
                         </Form.Control>
+                        {errorMessages.category_id && (
+                          <div className="text-danger">
+                            {errorMessages.category_id}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -235,6 +301,11 @@ function EditProduct() {
                             );
                           })}
                         </Form.Control>
+                        {errorMessages.brand_id && (
+                          <div className="text-danger">
+                            {errorMessages.brand_id}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>

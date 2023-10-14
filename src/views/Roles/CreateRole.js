@@ -4,6 +4,7 @@ import { Button, Card, Form, Container, Row, Col } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import { postRole } from "service/roleService";
 import { getPermission } from "service/roleService";
+import { schemaCreateRole } from "yup/validation/SchemaValidation";
 
 function CreateRole() {
   const history = useHistory();
@@ -15,8 +16,9 @@ function CreateRole() {
     permission_ids: [],
   });
   const [choose, setChoose] = useState({});
-  const { name, display_name, group, permission_ids } = formData;
+  const { name, display_name } = formData;
 
+  
   const handleInputChange = (event) => {
     const { name, value, type, files, checked } = event.target;
 
@@ -75,19 +77,17 @@ function CreateRole() {
     event.preventDefault();
 
     try {
-      // await validationSchema.validate(formData, { abortEarly: false });
-
-     
+      await schemaCreateRole.validate(formData, { abortEarly: false });
       await postRole(formData);
-
       history.push("/admin/roles");
     } catch (error) {
-      // If validation fails, update the error messages
-      // const errors = {};
-      // error.inner.forEach((e) => {
-      //   errors[e.path] = e.message;
-      // });
-      // setErrorMessages(errors);
+      const validationErrors = {};
+      if (error.inner) {
+        error.inner.forEach((validationError) => {
+          validationErrors[validationError.path] = validationError.message;
+        });
+      }
+      setErrorMessages(validationErrors);
     }
   };
 
@@ -113,6 +113,11 @@ function CreateRole() {
                           value={name}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.name && (
+                          <div className="text-danger">
+                            {errorMessages.name}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -127,6 +132,11 @@ function CreateRole() {
                           value={display_name}
                           onChange={handleInputChange}
                         />
+                        {errorMessages.display_name && (
+                          <div className="text-danger">
+                            {errorMessages.display_name}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -144,6 +154,11 @@ function CreateRole() {
                           <option value="system">System</option>
                           <option value="user">User</option>
                         </Form.Control>
+                        {errorMessages.group && (
+                          <div className="text-danger">
+                            {errorMessages.group}
+                          </div>
+                        )}
                       </Form.Group>
                     </Col>
                   </Row>

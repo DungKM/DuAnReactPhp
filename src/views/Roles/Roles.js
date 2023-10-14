@@ -30,56 +30,70 @@ function Roles() {
     <>
       <Container fluid>
         <Row>
-          <Col md="12">
-            <Card className="strpied-tabled-with-hover">
-              <Card.Header>
-                <Card.Title as="h4">Roles</Card.Title>
-                <p className="card-category">List Roles</p>
-                <NavLink className="btn btn-info" to={"/admin/role/create"}>
-                  Add Role
-                </NavLink>
-              </Card.Header>
-              <Card.Body className="table-full-width table-responsive px-0">
-                <Table className="table-hover table-condensed">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Name</th>
-                      <th>DisplayName</th>
-                      <th>Group</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.map((role, index) => (
-                      <tr key={role.id}>
-                        <td>{index + 1}</td>
-                        <td>{role.name}</td>
-                        <td>{role.display_name}</td>
-                        <td>{role.group}</td>
-                        
-                        <td>
-                          <Button
-                            variant="danger"
-                            className="m-2"
-                            onClick={() => handleDelete(role.id)}
-                          >
-                            Delete
-                          </Button>
-                          <Link
-                            to={`/admin/role/edit/${role.id}`}
-                            className="btn btn-outline-success m-2"
-                          >
-                            Update
-                          </Link>
-                        </td>
+          {data ? (
+            <Col md="12">
+              <Card className="strpied-tabled-with-hover">
+                <Card.Header>
+                  <Card.Title as="h4">Roles</Card.Title>
+                  <p className="card-category">List Roles</p>
+                  <NavLink className="btn btn-info" to={"/admin/role/create"}>
+                    Add Role
+                  </NavLink>
+                </Card.Header>
+                <Card.Body className="table-full-width table-responsive px-0">
+                  <Table className="table-hover table-condensed">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>DisplayName</th>
+                        <th>Group</th>
+                        <th>Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </Card.Body>
-            </Card>
-          </Col>
+                    </thead>
+                    <tbody>
+                      {data ? (
+                        data.map((role, index) => (
+                          <tr key={role.id}>
+                            <td>{index + 1}</td>
+                            <td>{role.name}</td>
+                            <td>{role.display_name}</td>
+                            <td>{role.group}</td>
+
+                            <td>
+                              <Button
+                                variant="danger"
+                                className="m-2"
+                                onClick={() => handleDelete(role.id)}
+                              >
+                                Delete
+                              </Button>
+                              <Link
+                                to={`/admin/role/edit/${role.id}`}
+                                className="btn btn-outline-success m-2"
+                              >
+                                Update
+                              </Link>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td className="text-center" colSpan="5">
+                            No roles found
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
+            </Col>
+          ) : (
+            <div>
+              <h3 className="text-center">No data</h3>
+            </div>
+          )}
         </Row>
       </Container>
     </>

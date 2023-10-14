@@ -4,6 +4,8 @@ import { Button, Card, Form, Container, Row, Col } from "react-bootstrap";
 import { useParams } from "react-router-dom/cjs/react-router-dom";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { detailBrand, editBrand } from "service/brandService";
+import { imageValidationSchema } from "yup/validation/SchemaValidation";
+import { schemaUpdateBrandAndCategory } from "yup/validation/SchemaValidation";
 
 function EditBrand() {
   const { id } = useParams();
@@ -21,7 +23,7 @@ function EditBrand() {
     const value = event.target.value;
     setInputs((values) => ({ ...values, [name]: value }));
   };
-  
+
   useEffect(() => {
     detailBrand(id)
       .then((response) => {
@@ -39,17 +41,37 @@ function EditBrand() {
     formData.append("description", inputs.description);
     formData.append("image", fileimage);
 
-    await axios.post("http://127.0.0.1:8000/api/brands/" + id, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    setTimeout(() => {
-      history.push("/admin/brands");
-    }, 2000);
+    await editBrand(formData, id);
+    history.push("/admin/brands");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await uploadProduct();
+    // Kiểm tra trường image nếu fileimage không rỗng
+    if (fileimage) {
+      try {
+        await imageValidationSchema.validate(fileimage, { abortEarly: false });
+      } catch (error) {
+        setErrorMessages({ image: error.message });
+        return; // Dừng việc submit nếu có lỗi ở trường image
+      }
+    }
+
+    try {
+      await schemaUpdateBrandAndCategory.validate(inputs, {
+        abortEarly: false,
+      });
+      await uploadProduct();
+    } catch (error) {
+      const validationErrors = {};
+
+      if (error.inner) {
+        error.inner.forEach((validationError) => {
+          validationErrors[validationError.path] = validationError.message;
+        });
+      }
+      setErrorMessages(validationErrors);
+    }
   };
 
   return (
@@ -103,14 +125,20 @@ function EditBrand() {
                     <Form.Group>
                       <label>Image</label>
                       <div>
-                        <img
-                          src={
-                            "http://127.0.0.1:8000/storage/images/" +
-                            inputs.image
-                          }
-                          style={{ width: "100px" }}
-                          alt="Brand Image"
-                        />
+                        {inputs.image ? (
+                          <img
+                            src={
+                              inputs.image
+                                ? "http://127.0.0.1:8000/storage/images/" +
+                                  inputs.image
+                                : ""
+                            }
+                            style={{ width: "100px" }}
+                            alt="Brand Image"
+                          />
+                        ) : (
+                          <></>
+                        )}
                       </div>
                       <Form.Control
                         type="file"

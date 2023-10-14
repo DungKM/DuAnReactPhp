@@ -28,77 +28,94 @@ function Products() {
     <>
       <Container fluid>
         <Row>
-          <Col md="12">
-            <Card className="strpied-tabled-with-hover">
-              <Card.Header>
-                <Card.Title as="h4">Products</Card.Title>
-                <p className="card-product">List product</p>
+          {data ? (
+            <Col md="12">
+              <Card className="strpied-tabled-with-hover">
+                <Card.Header>
+                  <Card.Title as="h4">Products</Card.Title>
+                  <p className="card-product">List product</p>
 
-                <NavLink className="btn btn-info" to={"/admin/product/create"}>
-                  Add product
-                </NavLink>
-              </Card.Header>
-              <Card.Body className="table-full-width table-responsive px-0">
-                <Table className="table-hover table-striped">
-                  <thead>
-                    <tr>
-                      <th className="border-0">ID</th>
-                      <th className="border-0">Name</th>
-                      <th className="border-0">Image</th>
-                      <th className="border-0">Price</th>
-                      <th className="border-0">Quantity</th>
-                      <th className="border-0">QuantityPage</th>
-                      <th className="border-0">Sale</th>
-                      <th className="border-0">Category</th>
-                      <th className="border-0">Brand</th>
-                      <th className="border-0">Description</th>
-                      <th className="border-0">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.map((product, index) => (
-                      <tr key={product.id}>
-                        <td>{index + 1}</td>
-                        <td>{product.name}</td>
-                        <td>
-                          <img
-                            src={
-                              "http://127.0.0.1:8000/storage/images/" +
-                              product.image
-                            }
-                            style={{ width: "100px" }}
-                            alt="Product Image"
-                          />
-                        </td>
-                        <td>{product.price}</td>
-                        <td>{product.quantity}</td>
-                        <td>{product.quantity_page}</td>
-                        <td>{product.sale}</td>
-                        <td>{product.category.name}</td>
-                        <td>{product.brand.name}</td>
-                        <td>{product.description}</td>
-                        <td>
-                          <Button
-                            variant="danger"
-                            className="m-2"
-                            onClick={() => handleDelete(product.id)}
-                          >
-                            Delete
-                          </Button>
-                          <Link
-                            to={`/admin/product/edit/${product.id}`}
-                            className="btn btn-outline-success m-2"
-                          >
-                            Update
-                          </Link>
-                        </td>
+                  <NavLink
+                    className="btn btn-info"
+                    to={"/admin/product/create"}
+                  >
+                    Add product
+                  </NavLink>
+                </Card.Header>
+                <Card.Body className="table-full-width table-responsive px-0">
+                  <Table className="table-hover table-striped">
+                    <thead>
+                      <tr>
+                        <th className="border-0">ID</th>
+                        <th className="border-0">Name</th>
+                        <th className="border-0">Image</th>
+                        <th className="border-0">Price</th>
+                        <th className="border-0">Quantity</th>
+                        <th className="border-0">QuantityPage</th>
+                        <th className="border-0">Sale</th>
+                        <th className="border-0">Category</th>
+                        <th className="border-0">Brand</th>
+                        <th className="border-0">Description</th>
+                        <th className="border-0">Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </Card.Body>
-            </Card>
-          </Col>
+                    </thead>
+                    <tbody>
+                      {data ? (
+                        data.map((product, index) => (
+                          <tr key={product.id}>
+                            <td>{index + 1}</td>
+                            <td>{product.name}</td>
+                            <td>
+                              <img
+                                src={
+                                  "http://127.0.0.1:8000/storage/images/" +
+                                  product.image
+                                }
+                                style={{ width: "100px" }}
+                                alt="Product Image"
+                              />
+                            </td>
+                            <td>{product.price}</td>
+                            <td>{product.quantity}</td>
+                            <td>{product.quantity_page}</td>
+                            <td>{product.sale}</td>
+                            <td>{product.category.name}</td>
+                            <td>{product.brand.name}</td>
+                            <td>{product.description}</td>
+                            <td>
+                              <Button
+                                variant="danger"
+                                className="m-2"
+                                onClick={() => handleDelete(product.id)}
+                              >
+                                Delete
+                              </Button>
+                              <Link
+                                to={`/admin/product/edit/${product.id}`}
+                                className="btn btn-outline-success m-2"
+                              >
+                                Update
+                              </Link>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td className="text-center" colSpan="11">
+                            No products found
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
+            </Col>
+          ) : (
+            <div>
+              <h3 className="text-center">No data</h3>
+            </div>
+          )}
         </Row>
       </Container>
     </>

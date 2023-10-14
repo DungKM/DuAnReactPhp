@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Card, Form, Container, Row, Col } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import { postBrand } from "service/brandService";
-
+import { schemaCreateBrandAndCategory } from "yup/validation/SchemaValidation";
 
 function CreateBrand() {
   const history = useHistory();
@@ -27,7 +27,9 @@ function CreateBrand() {
     event.preventDefault();
 
     try {
-
+      await schemaCreateBrandAndCategory.validate(formData, {
+        abortEarly: false,
+      });
       const formDataType = new FormData();
       formDataType.append("name", name);
       formDataType.append("description", description);
@@ -35,7 +37,13 @@ function CreateBrand() {
       await postBrand(formDataType);
       history.push("/admin/brands");
     } catch (error) {
-     
+      const validationErrors = {};
+      if (error.inner) {
+        error.inner.forEach((validationError) => {
+          validationErrors[validationError.path] = validationError.message;
+        });
+      }
+      setErrorMessages(validationErrors);
     }
   };
 

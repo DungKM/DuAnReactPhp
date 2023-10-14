@@ -1,12 +1,12 @@
-
 import React, { Component } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
 
 import routes from "routes.js";
 
 function Header() {
   const location = useLocation();
+  const history = useHistory(); // Khởi tạo useHistory
   const mobileSidebarToggle = (e) => {
     e.preventDefault();
     document.documentElement.classList.toggle("nav-open");
@@ -18,6 +18,13 @@ function Header() {
     };
     document.body.appendChild(node);
   };
+  function handleLogout() {
+    // Xóa token khỏi sessionStorage
+    sessionStorage.removeItem("token");
+
+    // Thực hiện chuyển hướng hoặc xử lý tùy ý, ví dụ: chuyển hướng về trang đăng nhập
+    history.push("/admin/login"); // Chuyển hướng đến trang đăng nhập
+  }
 
   const getBrandText = () => {
     for (let i = 0; i < routes.length; i++) {
@@ -27,7 +34,7 @@ function Header() {
     }
     // Trả về một giá trị mặc định nếu không có trùng khớp nào
     return "Edit";
-  }
+  };
   return (
     <Navbar bg="light" expand="lg">
       <Container fluid>
@@ -53,9 +60,7 @@ function Header() {
           <span className="navbar-toggler-bar burger-lines"></span>
         </Navbar.Toggle>
         <Navbar.Collapse id="basic-navbar-nav">
-         
           <Nav className="ml-auto" navbar>
-          
             <Dropdown as={Nav.Item}>
               <Dropdown.Toggle
                 aria-expanded={false}
@@ -108,7 +113,7 @@ function Header() {
                 href="#pablo"
                 onClick={(e) => e.preventDefault()}
               >
-                <span className="no-icon">Log out</span>
+                <span className="no-icon" onClick={handleLogout}>Log out</span>
               </Nav.Link>
             </Nav.Item>
           </Nav>

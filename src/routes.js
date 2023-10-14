@@ -33,6 +33,9 @@ import EditRole from "views/Roles/EditRole";
 import Users from "views/Users/Users";
 import CreateUser from "views/Users/CreateUser";
 import EditUser from "views/Users/EditUser";
+import LoginForm from "views/Login";
+const data = sessionStorage.getItem('dataLogin');
+
 
 const dashboardRoutes = [
   {
@@ -153,6 +156,13 @@ const dashboardRoutes = [
     component: EditUser,
     layout: "/admin",
     redirect: true,
+  },
+  {
+    path: "/login",
+    name: "Login",
+    icon: "nc-icon nc-tap-01",
+    component: LoginForm,
+    layout: "/admin",
   },
 ];
 
